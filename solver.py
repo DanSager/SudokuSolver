@@ -2,7 +2,8 @@
 from array import *
 import time
 
-puzzle_directory = 'puzzles'
+puzzle_directory = 'puzzles/'
+
 nums = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
 boxes = 0
 
@@ -81,7 +82,7 @@ def block_to_array(input_block):
 
 def load_puzzle(name):
     """ Read puzzle from text file """
-    f = open("puzzles" + "/" + name, "r")
+    f = open(puzzle_directory + name, "r")
     r = f.read()
 
     rows, cols = 9, 9
@@ -139,18 +140,25 @@ def common(row, col, local):
 
 def found(puzzle, i, j, elem):
     puzzle[i][j] = elem
-    print("Added " + elem + " at i:" + str(i) + " j:" + str(j))
+    #print("Added " + elem + " at i:" + str(i) + " j:" + str(j))
     global boxes
     boxes += 1
-    print(str(boxes) + "/81")
-    print_puzzle(puzzle)
+    #print(str(boxes) + "/81")
+    #print_puzzle(puzzle)
     return puzzle
 
 
 def solve(puzzle):
     """ Solve """
     i, j = 0, 0
+    iterations_since_last_found = 0
     while not complete(puzzle):
+        if iterations_since_last_found > 81:
+            # stuck
+            print("Got stuck")
+            print_puzzle(puzzle)
+            break
+
         if puzzle[i][j] == 'X':
             # try to solve
             relative_row = int(i % 3)  # Row position in block
@@ -170,8 +178,9 @@ def solve(puzzle):
                 # BEGIN FILL ONE EMPTY SPOT BLOCK
                 local_block = get_block(puzzle, i, j)  # Block that the active box is situated
                 if len(missing(block_to_array(local_block))) == 1:
-                    print("Added from fill one empty spot block")
+                    #print("Added from fill one empty spot block")
                     puzzle = found(puzzle, i, j, missing(block_to_array(local_block)).pop())
+                    iterations_since_last_found = 0
                     con = True
 
                 if con:
@@ -180,8 +189,9 @@ def solve(puzzle):
 
                 # BEGIN FILL ONE EMPTY SPOT ROW
                 if len(missing(puzzle[i])) == 1:
-                    print("Added from fill one empty spot row")
+                    #print("Added from fill one empty spot row")
                     puzzle = found(puzzle, i, j, missing(puzzle[i]).pop())
+                    iterations_since_last_found = 0
                     con = True
 
                 if con:
@@ -190,8 +200,9 @@ def solve(puzzle):
 
                 # BEGIN FILL ONE EMPTY SPOT COLUMN
                 if len(missing(get_col(puzzle, j))) == 1:
-                    print("Added from fill one empty spot column")
+                    #print("Added from fill one empty spot column")
                     puzzle = found(puzzle, i, j, missing(get_col(puzzle, j)).pop())
+                    iterations_since_last_found = 0
                     con = True
 
                 if con:
@@ -206,8 +217,9 @@ def solve(puzzle):
                 missing_elem = common(missing_row, missing_col, missing_block)
 
                 if len(missing_elem) == 1:
-                    print("Added from basic direct row speculation")
+                    #print("Added from basic direct row speculation")
                     puzzle = found(puzzle, i, j, missing_elem.pop())
+                    iterations_since_last_found = 0
                     con = True
 
                 if con:
@@ -247,8 +259,9 @@ def solve(puzzle):
                 for row_element in miss_row:
                     if len(local_row_simple) == 2:
                         if row_element not in row and row_element not in col:
-                            print("Added from rows missing")
+                            #print("Added from rows missing")
                             puzzle = found(puzzle, i, j, row_element)
+                            iterations_since_last_found = 0
                             con = True
 
                 if con:
@@ -258,8 +271,9 @@ def solve(puzzle):
                 for column_element in miss_col:
                     if len(local_col_simple) == 2:
                         if column_element not in row and column_element not in col:
-                            print("Added from cols missing")
+                            #print("Added from cols missing")
                             puzzle = found(puzzle, i, j, column_element)
+                            iterations_since_last_found = 0
                             con = True
 
                 if con:
@@ -287,8 +301,9 @@ def solve(puzzle):
                                 possible_locations -= 1
 
                     if possible_locations == 1:
-                        print("Added from lack of space")
+                        #print("Added from lack of space")
                         puzzle = found(puzzle, i, j, elem)
+                        iterations_since_last_found = 0
                         con = True
                         break
 
@@ -324,8 +339,9 @@ def solve(puzzle):
                             else:
                                 remaining -= 1
                         if remaining == 0:
-                            print("Added from rows plus columns")
+                            #print("Added from rows plus columns")
                             puzzle = found(puzzle, i, j, elem)
+                            iterations_since_last_found = 0
                             con = True
 
                 if con:
@@ -360,8 +376,9 @@ def solve(puzzle):
                             else:
                                 remaining -= 1
                         if remaining == 0:
-                            print("Added from columns plus rows")
+                            #print("Added from columns plus rows")
                             puzzle = found(puzzle, i, j, elem)
+                            iterations_since_last_found = 0
                             con = True
 
                 if con:
@@ -446,8 +463,9 @@ def solve(puzzle):
                                 remaining -= 1
 
                         if remaining == 0:
-                            print("Added from forward thinking row")
+                            # print("Added from forward thinking row")
                             puzzle = found(puzzle, i, j, elem)
+                            iterations_since_last_found = 0
                             con = True
                             break
 
@@ -533,8 +551,9 @@ def solve(puzzle):
                                 remaining -= 1
 
                         if remaining == 0:
-                            print("Added from forward thinking column")
+                            #print("Added from forward thinking column")
                             puzzle = found(puzzle, i, j, elem)
+                            iterations_since_last_found = 0
                             con = True
                             break
 
@@ -551,16 +570,52 @@ def solve(puzzle):
             i += 1
         if i == 9:
             i = 0
+        iterations_since_last_found += 1
+
+
+def test(iterations, selection):
+    for difficulty in selection:
+        start_time = time.time()
+
+        correctly_solved = 0
+        title = ""
+        if difficulty == 1:
+            title = "very-easy"
+        elif difficulty == 2:
+            title = "easy"
+        elif difficulty == 3:
+            title = "medium"
+        elif difficulty == 4:
+            title = "hard"
+        elif difficulty == 5:
+            title = "very-hard"
+
+        for i in range(0, iterations):
+            filename = title + str(i)
+            puzzle = load_puzzle(filename)
+            solve(puzzle)
+            global boxes
+            if boxes == 81:
+                # executed correctly
+                correctly_solved += 1
+                boxes = 0
+            else:
+                print("Had issues with " + filename)
+                boxes = 0
+
+        print("Correct solved: " + str(correctly_solved) + " " + title + " out of: " + str(iterations))
+        print("--- %s seconds to execute ---" % (time.time() - start_time))
 
 
 def main():
     """ Main """
-    puzzle = load_puzzle("medium2.txt")
-    print_puzzle(puzzle)
+    #puzzle = load_puzzle("hard2.txt")
+    #print_puzzle(puzzle)
     start_time = time.time()
-    solve(puzzle)
+    #solve(puzzle)
+    test(100, [3])
     print("--- %s seconds ---" % (time.time() - start_time))
-    print("Done: " + str(complete(puzzle)))
+    #print("Done: " + str(complete(puzzle)))
 
 
 if __name__ == "__main__":
