@@ -462,6 +462,100 @@ def solve(puzzle):
                     break
                 # ENG FORWARD THINKING ROW
 
+                # BEGIN FORWARD THINKING COLUMN
+                for elem in missing_elem:
+                    if elem in other_col1 and elem in other_col2:
+                        # Begin forward thinking
+                        remaining = 3
+                        if i == 7 and j == 3:
+                            a = 1
+                        for k in range(0, len(local_col_raw)):
+                            if k == relative_row:
+                                # check verticle_block, same row for full && missing the elem
+                                if elem in horizontal_block1.get_row(k) or elem in horizontal_block2.get_row(k):
+                                    break
+                                if (len(contain(horizontal_block1.get_row(k))) == 3 or elem in block_to_array(
+                                        horizontal_block1)) and \
+                                        (len(contain(horizontal_block2.get_row(k))) == 3 or elem in block_to_array(
+                                            horizontal_block2)):
+                                    # don't have to worry about vertical_block 1 vertical_block 2 in this column
+                                    remaining -= 1
+                            elif local_col_raw[k] == 'X':
+                                # other posible location
+                                if elem in horizontal_block1.get_row(k) or elem in horizontal_block2.get_row(k):
+                                    remaining -= 1
+                                elif (len(contain(horizontal_block1.get_row(k))) == 3 or elem in block_to_array(
+                                        horizontal_block1)) and \
+                                        (len(contain(horizontal_block2.get_row(k))) == 3 or elem in block_to_array(
+                                            horizontal_block2)):
+                                    # don't have to worry about vertical_block 1 vertical_block 2 in this column
+                                    remaining -= 1
+                                else:
+                                    got = False
+                                    if len(contain(horizontal_block1.get_row(k))) != 3:
+                                        remaining2 = 3
+                                        for m in range(0, len(horizontal_block1.get_row(k))):
+                                            if horizontal_block1.get_row(k)[m] == 'X':
+                                                x, y = 0, 0
+                                                if relative_horizontal_block == 0:
+                                                    x = i + k - relative_row
+                                                    y = j + 3 - relative_col + m
+                                                elif relative_horizontal_block == 1:
+                                                    x = i + k - relative_row
+                                                    y = j - 3 - relative_col + m
+                                                elif relative_horizontal_block == 2:
+                                                    x = i + k - relative_row
+                                                    y = j - 3 - relative_col + m
+                                                missing_row2 = missing(puzzle[x])
+                                                missing_col2 = missing(get_col(puzzle, y))
+
+                                                missing_block2 = missing(block_to_array(horizontal_block1))
+                                                missing_elem2 = common(missing_row2, missing_col2, missing_block2)
+                                                if elem not in missing_elem2:
+                                                    remaining2 -= 1
+                                            else:
+                                                remaining2 -= 1
+                                        if remaining2 == 0:
+                                            remaining -= 1
+                                            got = True
+
+                                    if len(contain(horizontal_block2.get_row(k))) != 3 and not got:
+                                        remaining2 = 3
+                                        for m in range(0, len(horizontal_block2.get_col(k))):
+                                            if horizontal_block2.get_row(k)[m] == 'X':
+                                                x, y = 0, 0
+                                                if relative_horizontal_block == 0:
+                                                    x = i + k - relative_row
+                                                    y = j + 6 - relative_col + m
+                                                elif relative_horizontal_block == 1:
+                                                    x = i + k - relative_row
+                                                    y = j + 3 - relative_col + m
+                                                elif relative_horizontal_block == 2:
+                                                    x = i + k - relative_row
+                                                    y = j - 6 - relative_col + m
+                                                missing_row2 = missing(puzzle[x])
+                                                missing_col2 = missing(get_col(puzzle, y))
+
+                                                missing_block2 = missing(block_to_array(horizontal_block2))
+                                                missing_elem2 = common(missing_row2, missing_col2, missing_block2)
+                                                if elem not in missing_elem2:
+                                                    remaining2 -= 1
+                                            else:
+                                                remaining2 -= 1
+                                        if remaining2 == 0:
+                                            remaining -= 1
+                            else:
+                                remaining -= 1
+                        if remaining == 0 or remaining == -1:
+                            print("Added from forward thinking column")
+                            puzzle = found(puzzle, i, j, elem)
+                            con = True
+                            break
+
+                if con:
+                    break
+                # ENG FORWARD THINKING COLUMN
+
                 break
 
         # Continue
