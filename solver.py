@@ -164,7 +164,7 @@ def solve(puzzle):
             con = False
 
             while True:
-                if i == 2 and j == 4:
+                if i == 1 and j == 6:
                     a = 1
 
                 # BEGIN FILL ONE EMPTY SPOT BLOCK
@@ -372,87 +372,80 @@ def solve(puzzle):
                 for elem in missing_elem:
                     if elem in other_row1 and elem in other_row2:
                         # Begin forward thinking
-                        remaining = 3
-                        if i==7 and j==3:
-                            a = 1
+                        remaining = 2  # other spots it can goto. if zero, number must be here
+
                         for k in range(0, len(local_row_raw)):
                             if k == relative_col:
-                                # check verticle_block, same column for full && missing the elem
-                                if elem in vertical_block1.get_col(k) or elem in vertical_block2.get_col(k):
-                                    break
-                                if (len(contain(vertical_block1.get_col(k))) == 3 or elem in block_to_array(
-                                        vertical_block1)) and \
-                                        (len(contain(vertical_block2.get_col(k))) == 3 or elem in block_to_array(
-                                            vertical_block2)):
-                                    # don't have to worry about vertical_block 1 vertical_block 2 in this column
-                                    remaining -= 1
-                            elif local_row_raw[k] == 'X':
-                                # other posible location
-                                if elem in vertical_block1.get_col(k) or elem in vertical_block2.get_col(k):
-                                    remaining -= 1
-                                elif (len(contain(vertical_block1.get_col(k))) == 3 or elem in block_to_array(
-                                        vertical_block1)) and \
-                                        (len(contain(vertical_block2.get_col(k))) == 3 or elem in block_to_array(
-                                            vertical_block2)):
-                                    # don't have to worry about vertical_block 1 vertical_block 2 in this column
-                                    remaining -= 1
-                                else:
-                                    got = False
-                                    if len(contain(vertical_block1.get_col(k))) != 3:
-                                        remaining2 = 3
-                                        for m in range(0, len(vertical_block1.get_col(k))):
-                                            if vertical_block1.get_col(k)[m] == 'X':
-                                                x, y = 0, 0
-                                                if relative_vertical_block == 0:
-                                                    x = i + 3 - relative_row + m
-                                                    y = j + k - relative_col
-                                                elif relative_vertical_block == 1:
-                                                    x = i - 3 - relative_row + m
-                                                    y = j + k - relative_col
-                                                elif relative_vertical_block == 2:
-                                                    x = i - 3 - relative_row + m
-                                                    y = j + k - relative_col
-                                                missing_row2 = missing(puzzle[x])
-                                                missing_col2 = missing(get_col(puzzle, y))
+                                continue
+                            if local_row_raw[k] == 'X':
+                                possible_local = 0
+                                possible_block1 = 0
+                                possible_block2 = 0
+                                for m in range(0, len(local_block.get_row(k))):
+                                    if local_block.get_row(relative_row)[m] == 'X':
+                                        x = i
+                                        y = j + m - relative_col
+                                        if x == i and y == j:
+                                            continue
 
-                                                missing_block2 = missing(block_to_array(vertical_block1))
-                                                missing_elem2 = common(missing_row2, missing_col2, missing_block2)
-                                                if elem not in missing_elem2:
-                                                    remaining2 -= 1
-                                            else:
-                                                remaining2 -= 1
-                                        if remaining2 == 0:
-                                            remaining -= 1
-                                            got = True
+                                        elem_not_in_row = missing(puzzle[x])
+                                        elem_not_in_col = missing(get_col(puzzle, y))
 
-                                    if len(contain(vertical_block2.get_col(k))) != 3 and not got:
-                                        remaining2 = 3
-                                        for m in range(0, len(vertical_block2.get_col(k))):
-                                            if vertical_block2.get_col(k)[m] == 'X':
-                                                x, y = 0, 0
-                                                if relative_vertical_block == 0:
-                                                    x = i + 6 - relative_row + m
-                                                    y = j + k - relative_col
-                                                elif relative_vertical_block == 1:
-                                                    x = i + 3 - relative_row + m
-                                                    y = j + k - relative_col
-                                                elif relative_vertical_block == 2:
-                                                    x = i - 6 - relative_row + m
-                                                    y = j + k - relative_col
-                                                missing_row2 = missing(puzzle[x])
-                                                missing_col2 = missing(get_col(puzzle, y))
+                                        elem_not_in_block = missing(block_to_array(local_block))
+                                        elem_not_already_contained = common(elem_not_in_row, elem_not_in_col, elem_not_in_block)
+                                        if elem in elem_not_already_contained:
+                                            possible_local += 1
 
-                                                missing_block2 = missing(block_to_array(vertical_block2))
-                                                missing_elem2 = common(missing_row2, missing_col2, missing_block2)
-                                                if elem not in missing_elem2:
-                                                    remaining2 -= 1
-                                            else:
-                                                remaining2 -= 1
-                                        if remaining2 == 0:
-                                            remaining -= 1
+                                for m in range(0, len(vertical_block1.get_col(k))):
+                                    if vertical_block1.get_col(k)[m] == 'X':
+                                        x, y = 0, 0
+                                        if relative_vertical_block == 0:
+                                            x = i + 3 - relative_row + m
+                                            y = j + k - relative_col
+                                        elif relative_vertical_block == 1:
+                                            x = i - 3 - relative_row + m
+                                            y = j + k - relative_col
+                                        elif relative_vertical_block == 2:
+                                            x = i - 3 - relative_row + m
+                                            y = j + k - relative_col
+
+                                        elem_not_in_row = missing(puzzle[x])
+                                        elem_not_in_col = missing(get_col(puzzle, y))
+
+                                        elem_not_in_block = missing(block_to_array(vertical_block1))
+                                        elem_not_already_contained = common(elem_not_in_row, elem_not_in_col, elem_not_in_block)
+                                        if elem in elem_not_already_contained:
+                                            possible_block1 += 1
+
+                                for m in range(0, len(vertical_block2.get_col(k))):
+                                    if vertical_block2.get_col(k)[m] == 'X':
+                                        x, y = 0, 0
+                                        if relative_vertical_block == 0:
+                                            x = i + 6 - relative_row + m
+                                            y = j + k - relative_col
+                                        elif relative_vertical_block == 1:
+                                            x = i + 3 - relative_row + m
+                                            y = j + k - relative_col
+                                        elif relative_vertical_block == 2:
+                                            x = i - 6 - relative_row + m
+                                            y = j + k - relative_col
+
+                                        elem_not_in_row = missing(puzzle[x])
+                                        elem_not_in_col = missing(get_col(puzzle, y))
+
+                                        elem_not_in_block = missing(block_to_array(vertical_block2))
+                                        elem_not_already_contained = common(elem_not_in_row, elem_not_in_col, elem_not_in_block)
+                                        if elem in elem_not_already_contained:
+                                            possible_block2 += 1
+
+                                if (possible_local + possible_block1 + possible_block2) == 0:
+                                    # it is possible to exist, other options exist
+                                    remaining -= 1
                             else:
+                                # Number already exists
                                 remaining -= 1
-                        if remaining == 0 or remaining == -1:
+
+                        if remaining == 0:
                             print("Added from forward thinking row")
                             puzzle = found(puzzle, i, j, elem)
                             con = True
@@ -466,87 +459,80 @@ def solve(puzzle):
                 for elem in missing_elem:
                     if elem in other_col1 and elem in other_col2:
                         # Begin forward thinking
-                        remaining = 3
-                        if i == 7 and j == 3:
-                            a = 1
+                        remaining = 2  # other spots it can goto. if zero, number must be here
+
                         for k in range(0, len(local_col_raw)):
                             if k == relative_row:
-                                # check verticle_block, same row for full && missing the elem
-                                if elem in horizontal_block1.get_row(k) or elem in horizontal_block2.get_row(k):
-                                    break
-                                if (len(contain(horizontal_block1.get_row(k))) == 3 or elem in block_to_array(
-                                        horizontal_block1)) and \
-                                        (len(contain(horizontal_block2.get_row(k))) == 3 or elem in block_to_array(
-                                            horizontal_block2)):
-                                    # don't have to worry about vertical_block 1 vertical_block 2 in this column
-                                    remaining -= 1
-                            elif local_col_raw[k] == 'X':
-                                # other posible location
-                                if elem in horizontal_block1.get_row(k) or elem in horizontal_block2.get_row(k):
-                                    remaining -= 1
-                                elif (len(contain(horizontal_block1.get_row(k))) == 3 or elem in block_to_array(
-                                        horizontal_block1)) and \
-                                        (len(contain(horizontal_block2.get_row(k))) == 3 or elem in block_to_array(
-                                            horizontal_block2)):
-                                    # don't have to worry about vertical_block 1 vertical_block 2 in this column
-                                    remaining -= 1
-                                else:
-                                    got = False
-                                    if len(contain(horizontal_block1.get_row(k))) != 3:
-                                        remaining2 = 3
-                                        for m in range(0, len(horizontal_block1.get_row(k))):
-                                            if horizontal_block1.get_row(k)[m] == 'X':
-                                                x, y = 0, 0
-                                                if relative_horizontal_block == 0:
-                                                    x = i + k - relative_row
-                                                    y = j + 3 - relative_col + m
-                                                elif relative_horizontal_block == 1:
-                                                    x = i + k - relative_row
-                                                    y = j - 3 - relative_col + m
-                                                elif relative_horizontal_block == 2:
-                                                    x = i + k - relative_row
-                                                    y = j - 3 - relative_col + m
-                                                missing_row2 = missing(puzzle[x])
-                                                missing_col2 = missing(get_col(puzzle, y))
+                                continue
+                            if local_col_raw[k] == 'X':
+                                possible_local = 0
+                                possible_block1 = 0
+                                possible_block2 = 0
+                                for m in range(0, len(local_block.get_col(k))):
+                                    if local_block.get_col(relative_col)[m] == 'X':
+                                        x = i + m - relative_row
+                                        y = j
+                                        if x == i and y == j:
+                                            continue
 
-                                                missing_block2 = missing(block_to_array(horizontal_block1))
-                                                missing_elem2 = common(missing_row2, missing_col2, missing_block2)
-                                                if elem not in missing_elem2:
-                                                    remaining2 -= 1
-                                            else:
-                                                remaining2 -= 1
-                                        if remaining2 == 0:
-                                            remaining -= 1
-                                            got = True
+                                        elem_not_in_row = missing(puzzle[x])
+                                        elem_not_in_col = missing(get_col(puzzle, y))
 
-                                    if len(contain(horizontal_block2.get_row(k))) != 3 and not got:
-                                        remaining2 = 3
-                                        for m in range(0, len(horizontal_block2.get_col(k))):
-                                            if horizontal_block2.get_row(k)[m] == 'X':
-                                                x, y = 0, 0
-                                                if relative_horizontal_block == 0:
-                                                    x = i + k - relative_row
-                                                    y = j + 6 - relative_col + m
-                                                elif relative_horizontal_block == 1:
-                                                    x = i + k - relative_row
-                                                    y = j + 3 - relative_col + m
-                                                elif relative_horizontal_block == 2:
-                                                    x = i + k - relative_row
-                                                    y = j - 6 - relative_col + m
-                                                missing_row2 = missing(puzzle[x])
-                                                missing_col2 = missing(get_col(puzzle, y))
+                                        elem_not_in_block = missing(block_to_array(local_block))
+                                        elem_not_already_contained = common(elem_not_in_row, elem_not_in_col, elem_not_in_block)
+                                        if elem in elem_not_already_contained:
+                                            possible_local += 1
 
-                                                missing_block2 = missing(block_to_array(horizontal_block2))
-                                                missing_elem2 = common(missing_row2, missing_col2, missing_block2)
-                                                if elem not in missing_elem2:
-                                                    remaining2 -= 1
-                                            else:
-                                                remaining2 -= 1
-                                        if remaining2 == 0:
-                                            remaining -= 1
+                                for m in range(0, len(horizontal_block1.get_row(k))):
+                                    if horizontal_block1.get_row(k)[m] == 'X':
+                                        x, y = 0, 0
+                                        if relative_horizontal_block == 0:
+                                            x = i + k - relative_row
+                                            y = j + 3 - relative_col + m
+                                        elif relative_horizontal_block == 1:
+                                            x = i + k - relative_row
+                                            y = j - 3 - relative_col + m
+                                        elif relative_horizontal_block == 2:
+                                            x = i + k - relative_row
+                                            y = j - 3 - relative_col + m
+
+                                        elem_not_in_row = missing(puzzle[x])
+                                        elem_not_in_col = missing(get_col(puzzle, y))
+
+                                        elem_not_in_block = missing(block_to_array(horizontal_block1))
+                                        elem_not_already_contained = common(elem_not_in_row, elem_not_in_col, elem_not_in_block)
+                                        if elem in elem_not_already_contained:
+                                            possible_block1 += 1
+
+                                for m in range(0, len(horizontal_block2.get_row(k))):
+                                    if horizontal_block2.get_row(k)[m] == 'X':
+                                        x, y = 0, 0
+                                        if relative_horizontal_block == 0:
+                                            x = i + k - relative_row
+                                            y = j + 6 - relative_col + m
+                                        elif relative_horizontal_block == 1:
+                                            x = i + k - relative_row
+                                            y = j + 3 - relative_col + m
+                                        elif relative_horizontal_block == 2:
+                                            x = i + k - relative_row
+                                            y = j - 6 - relative_col + m
+
+                                        elem_not_in_row = missing(puzzle[x])
+                                        elem_not_in_col = missing(get_col(puzzle, y))
+
+                                        elem_not_in_block = missing(block_to_array(horizontal_block2))
+                                        elem_not_already_contained = common(elem_not_in_row, elem_not_in_col, elem_not_in_block)
+                                        if elem in elem_not_already_contained:
+                                            possible_block2 += 1
+
+                                if possible_local + possible_block1 + possible_block2 == 0:
+                                    # it is possible to exist, other options exist
+                                    remaining -= 1
                             else:
+                                # Number already exists
                                 remaining -= 1
-                        if remaining == 0 or remaining == -1:
+
+                        if remaining == 0:
                             print("Added from forward thinking column")
                             puzzle = found(puzzle, i, j, elem)
                             con = True
@@ -569,7 +555,7 @@ def solve(puzzle):
 
 def main():
     """ Main """
-    puzzle = load_puzzle("medium1.txt")
+    puzzle = load_puzzle("medium2.txt")
     print_puzzle(puzzle)
     start_time = time.time()
     solve(puzzle)
