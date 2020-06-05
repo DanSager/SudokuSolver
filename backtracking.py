@@ -1,11 +1,11 @@
-""" solve sudoku """
-from array import *
+""" solve sudoku using backtracking recursive algorithm """
 import time
-from copy import copy, deepcopy
+from copy import deepcopy
+from sudoku import *
 
 PUZZLES_DIRECTORY = 'puzzles/'
 NUMS = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
-DEBUG = True
+DEBUG = False
 
 
 class box:
@@ -157,30 +157,26 @@ def solve(puzzle, x, y):
     row_values = extract_row_values(puzzle, puzzle[x][y])
     column_values = extract_column_values(puzzle, puzzle[x][y])
     block_values = extract_block_values(puzzle, puzzle[x][y])
-    possible_values = missing_nearby(row_values, column_values, block_values)
+    possible_values = list(missing_nearby(row_values, column_values, block_values))
     while True:
-        if complete(puzzle):
-            break
-
         if len(possible_values) == 0:
             return puzzle
         else:
             if DEBUG:
                 print(possible_values)
+            if i == 0 and j == 0:
+                return insert(deepcopy(puzzle), x, y, possible_values.pop())
             out = solve(insert(deepcopy(puzzle), x, y, possible_values.pop()), i, j)
             if complete(out):
-                puzzle = out
-
+                return out
 
     return puzzle
 
 
 def test(iterations, selection):
-    arr = []
     for difficulty in selection:
-        start_time = time.time()
+        test_start_time = time.time()
 
-        correctly_solved = 0
         title = ""
         if difficulty == 1:
             title = "very-easy"
@@ -196,31 +192,17 @@ def test(iterations, selection):
         for i in range(0, iterations):
 
             filename = title + str(i)
-            print("Attemping " + filename)
-            puzzle = load_puzzle(filename)
-            solve(puzzle, 0, 0)
+            if DEBUG:
+                print("Attemping " + filename)
+            #solve(load_puzzle(filename), 0, 0)
+            solve_file(PUZZLES_DIRECTORY + filename)
 
-        print("--- %s seconds to execute ---" % (time.time() - start_time))
-    for val in arr:
-        print("- Correct solved: " + str(val) + " out of: " + str(iterations))
-    return
-
-
-def main():
-    """ Main """
-    puzzle = load_puzzle("medium1")
-    puzzle.reverse()
-    # print_puzzle(puzzle)
-
-    start_time = time.time()
-    completed = solve(puzzle, 0, 0)
-    #test(50, [3])
-    print("COMPLETED")
-    print_puzzle(completed)
-    print("--- %s seconds ---" % (time.time() - start_time))
-    # print("Done: " + str(complete(puzzle)))
+        print(f"--- {title} execution time {(time.time() - test_start_time):.4f} seconds, average "
+              f"{((time.time() - start_time)/iterations):.4f} ---")
     return
 
 
 if __name__ == "__main__":
-    main()
+    start_time = time.time()
+    test(100, [1, 2, 3, 4, 5])
+    print(f"\n--- total execution time: {(time.time() - start_time):.4f} seconds ---")

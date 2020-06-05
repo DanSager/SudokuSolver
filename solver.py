@@ -43,7 +43,7 @@ class block:
 
 def complete(arr):
     """ Does the sudoku contain any Xs """
-    return not any('X' in x for x in arr)
+    return not any('0' in x for x in arr)
 
 
 def print_puzzle(arr):
@@ -86,7 +86,7 @@ def load_puzzle(name):
     r = f.read()
 
     rows, cols = 9, 9
-    puzzle = [['X' for x in range(rows)] for y in range(cols)]
+    puzzle = [['0' for x in range(rows)] for y in range(cols)]
     i, j = 0, 0
     for char in r:
         if char != '\n':
@@ -159,7 +159,7 @@ def solve(puzzle):
             print_puzzle(puzzle)
             break
 
-        if puzzle[i][j] == 'X':
+        if puzzle[i][j] == '0':
             # try to solve
             relative_row = int(i % 3)  # Row position in block
             relative_col = int(j % 3)  # Column position in block
@@ -285,7 +285,7 @@ def solve(puzzle):
                     possible_locations = 9
                     for local_i in range(0, len(local_block.get_rows())):
                         for local_j in range(0, len(local_block.get_rows())):
-                            if local_block.get_row(local_i)[local_j] == 'X':
+                            if local_block.get_row(local_i)[local_j] == '0':
                                 # elem can possbily go here
                                 x = (relative_vertical_block * 3) + local_i
                                 y = (relative_horizontal_block * 3) + local_j
@@ -332,7 +332,7 @@ def solve(puzzle):
                         for k in range(0, len(local_row_raw)):
                             if k == relative_col:
                                 continue
-                            elif local_row_raw[k] == 'X':
+                            elif local_row_raw[k] == '0':
                                 # Check if this column has elem
                                 if elem in contain(get_col(puzzle, (j + k - relative_col))):
                                     remaining -= 1
@@ -369,7 +369,7 @@ def solve(puzzle):
                         for k in range(0, len(local_col_raw)):
                             if k == relative_row:
                                 continue
-                            elif local_col_raw[k] == 'X':
+                            elif local_col_raw[k] == '0':
                                 # Check if this column has elem
                                 if elem in contain(puzzle[(i + k - relative_row)]):
                                     remaining -= 1
@@ -399,7 +399,7 @@ def solve(puzzle):
                                             vertical_block2)):
                                     remaining -= 1
                                     continue
-                            if local_row_raw[k] == 'X':
+                            if local_row_raw[k] == '0':
                                 possible_local = 0
                                 possible_block1 = 0
                                 possible_block2 = 0
@@ -417,7 +417,7 @@ def solve(puzzle):
                                     possible_local += 1
 
                                 for m in range(0, len(vertical_block1.get_col(k))):
-                                    if vertical_block1.get_col(k)[m] == 'X':
+                                    if vertical_block1.get_col(k)[m] == '0':
                                         x, y = 0, 0
                                         if relative_vertical_block == 0:
                                             x = i + 3 - relative_row + m
@@ -438,7 +438,7 @@ def solve(puzzle):
                                             possible_block1 += 1
 
                                 for m in range(0, len(vertical_block2.get_col(k))):
-                                    if vertical_block2.get_col(k)[m] == 'X':
+                                    if vertical_block2.get_col(k)[m] == '0':
                                         x, y = 0, 0
                                         if relative_vertical_block == 0:
                                             x = i + 6 - relative_row + m
@@ -493,7 +493,7 @@ def solve(puzzle):
                                             horizontal_block2)):
                                     remaining -= 1
                                     continue
-                            if local_col_raw[k] == 'X':
+                            if local_col_raw[k] == '0':
                                 possible_local = 0
                                 possible_block1 = 0
                                 possible_block2 = 0
@@ -509,7 +509,7 @@ def solve(puzzle):
                                         possible_local += 1
 
                                 for m in range(0, len(horizontal_block1.get_row(k))):
-                                    if horizontal_block1.get_row(k)[m] == 'X':
+                                    if horizontal_block1.get_row(k)[m] == '0':
                                         x, y = 0, 0
                                         if relative_horizontal_block == 0:
                                             x = i + k - relative_row
@@ -530,7 +530,7 @@ def solve(puzzle):
                                             possible_block1 += 1
 
                                 for m in range(0, len(horizontal_block2.get_row(k))):
-                                    if horizontal_block2.get_row(k)[m] == 'X':
+                                    if horizontal_block2.get_row(k)[m] == '0':
                                         x, y = 0, 0
                                         if relative_horizontal_block == 0:
                                             x = i + k - relative_row
