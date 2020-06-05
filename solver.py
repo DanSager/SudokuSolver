@@ -92,7 +92,7 @@ def load_puzzle(name):
         if char != '\n':
             puzzle[i][j] = char
             j += 1
-            if char != 'X':
+            if char != '0':
                 global boxes
                 boxes += 1
         if char == '\n':
@@ -140,11 +140,11 @@ def common(row, col, local):
 
 def found(puzzle, i, j, elem):
     puzzle[i][j] = elem
-    #print("Added " + elem + " at i:" + str(i) + " j:" + str(j))
+    print("Added " + elem + " at i:" + str(i) + " j:" + str(j))
     global boxes
     boxes += 1
-    #print(str(boxes) + "/81")
-    #print_puzzle(puzzle)
+    print(str(boxes) + "/81")
+    print_puzzle(puzzle)
     return puzzle
 
 
@@ -178,7 +178,7 @@ def solve(puzzle):
                 # BEGIN FILL ONE EMPTY SPOT BLOCK
                 local_block = get_block(puzzle, i, j)  # Block that the active box is situated
                 if len(missing(block_to_array(local_block))) == 1:
-                    #print("Added from fill one empty spot block")
+                    print("Added from fill one empty spot block")
                     puzzle = found(puzzle, i, j, missing(block_to_array(local_block)).pop())
                     iterations_since_last_found = 0
                     con = True
@@ -189,7 +189,7 @@ def solve(puzzle):
 
                 # BEGIN FILL ONE EMPTY SPOT ROW
                 if len(missing(puzzle[i])) == 1:
-                    #print("Added from fill one empty spot row")
+                    print("Added from fill one empty spot row")
                     puzzle = found(puzzle, i, j, missing(puzzle[i]).pop())
                     iterations_since_last_found = 0
                     con = True
@@ -200,7 +200,7 @@ def solve(puzzle):
 
                 # BEGIN FILL ONE EMPTY SPOT COLUMN
                 if len(missing(get_col(puzzle, j))) == 1:
-                    #print("Added from fill one empty spot column")
+                    print("Added from fill one empty spot column")
                     puzzle = found(puzzle, i, j, missing(get_col(puzzle, j)).pop())
                     iterations_since_last_found = 0
                     con = True
@@ -217,7 +217,7 @@ def solve(puzzle):
                 missing_elem = common(missing_row, missing_col, missing_block)
 
                 if len(missing_elem) == 1:
-                    #print("Added from basic direct row speculation")
+                    print("Added from basic direct row speculation")
                     puzzle = found(puzzle, i, j, missing_elem.pop())
                     iterations_since_last_found = 0
                     con = True
@@ -259,7 +259,7 @@ def solve(puzzle):
                 for row_element in miss_row:
                     if len(local_row_simple) == 2:
                         if row_element not in row and row_element not in col:
-                            #print("Added from rows missing")
+                            print("Added from rows missing")
                             puzzle = found(puzzle, i, j, row_element)
                             iterations_since_last_found = 0
                             con = True
@@ -271,7 +271,7 @@ def solve(puzzle):
                 for column_element in miss_col:
                     if len(local_col_simple) == 2:
                         if column_element not in row and column_element not in col:
-                            #print("Added from cols missing")
+                            print("Added from cols missing")
                             puzzle = found(puzzle, i, j, column_element)
                             iterations_since_last_found = 0
                             con = True
@@ -301,7 +301,7 @@ def solve(puzzle):
                                 possible_locations -= 1
 
                     if possible_locations == 1:
-                        #print("Added from lack of space")
+                        print("Added from lack of space")
                         puzzle = found(puzzle, i, j, elem)
                         iterations_since_last_found = 0
                         con = True
@@ -339,7 +339,7 @@ def solve(puzzle):
                             else:
                                 remaining -= 1
                         if remaining == 0:
-                            #print("Added from rows plus columns")
+                            print("Added from rows plus columns")
                             puzzle = found(puzzle, i, j, elem)
                             iterations_since_last_found = 0
                             con = True
@@ -376,7 +376,7 @@ def solve(puzzle):
                             else:
                                 remaining -= 1
                         if remaining == 0:
-                            #print("Added from columns plus rows")
+                            print("Added from columns plus rows")
                             puzzle = found(puzzle, i, j, elem)
                             iterations_since_last_found = 0
                             con = True
@@ -393,25 +393,28 @@ def solve(puzzle):
 
                         for k in range(0, len(local_row_raw)):
                             if k == relative_col:
-                                continue
+                                if (len(contain(vertical_block1.get_col(k))) == 3 or elem in block_to_array(
+                                        vertical_block1)) and \
+                                        (len(contain(vertical_block2.get_col(k))) == 3 or elem in block_to_array(
+                                            vertical_block2)):
+                                    remaining -= 1
+                                    continue
                             if local_row_raw[k] == 'X':
                                 possible_local = 0
                                 possible_block1 = 0
                                 possible_block2 = 0
-                                for m in range(0, len(local_block.get_row(k))):
-                                    if local_block.get_row(relative_row)[m] == 'X':
-                                        x = i
-                                        y = j + m - relative_col
-                                        if x == i and y == j:
-                                            continue
+                                x = i
+                                y = j + k - relative_col
+                                if x == i and y == j:
+                                    continue
 
-                                        elem_not_in_row = missing(puzzle[x])
-                                        elem_not_in_col = missing(get_col(puzzle, y))
+                                elem_not_in_row = missing(puzzle[x])
+                                elem_not_in_col = missing(get_col(puzzle, y))
 
-                                        elem_not_in_block = missing(block_to_array(local_block))
-                                        elem_not_already_contained = common(elem_not_in_row, elem_not_in_col, elem_not_in_block)
-                                        if elem in elem_not_already_contained:
-                                            possible_local += 1
+                                elem_not_in_block = missing(block_to_array(local_block))
+                                elem_not_already_contained = common(elem_not_in_row, elem_not_in_col, elem_not_in_block)
+                                if elem in elem_not_already_contained:
+                                    possible_local += 1
 
                                 for m in range(0, len(vertical_block1.get_col(k))):
                                     if vertical_block1.get_col(k)[m] == 'X':
@@ -463,7 +466,7 @@ def solve(puzzle):
                                 remaining -= 1
 
                         if remaining == 0:
-                            # print("Added from forward thinking row")
+                            print("Added from forward thinking row")
                             puzzle = found(puzzle, i, j, elem)
                             iterations_since_last_found = 0
                             con = True
@@ -474,32 +477,36 @@ def solve(puzzle):
                 # ENG FORWARD THINKING ROW
 
                 # BEGIN FORWARD THINKING COLUMN
+                if i == 0 and j == 4:
+                    dasda= "Das"
                 for elem in missing_elem:
                     if elem in other_col1 and elem in other_col2:
                         # Begin forward thinking
                         remaining = 2  # other spots it can goto. if zero, number must be here
+                        possible_block2
 
                         for k in range(0, len(local_col_raw)):
                             if k == relative_row:
-                                continue
+                                if (len(contain(horizontal_block1.get_row(k))) == 3 or elem in block_to_array(
+                                        horizontal_block1)) and \
+                                        (len(contain(horizontal_block2.get_row(k))) == 3 or elem in block_to_array(
+                                            horizontal_block2)):
+                                    remaining -= 1
+                                    continue
                             if local_col_raw[k] == 'X':
                                 possible_local = 0
                                 possible_block1 = 0
                                 possible_block2 = 0
-                                for m in range(0, len(local_block.get_col(k))):
-                                    if local_block.get_col(relative_col)[m] == 'X':
-                                        x = i + m - relative_row
-                                        y = j
-                                        if x == i and y == j:
-                                            continue
+                                x = i + k - relative_row
+                                y = j
+                                if not x == i and y == j:
+                                    elem_not_in_row = missing(puzzle[x])
+                                    elem_not_in_col = missing(get_col(puzzle, y))
 
-                                        elem_not_in_row = missing(puzzle[x])
-                                        elem_not_in_col = missing(get_col(puzzle, y))
-
-                                        elem_not_in_block = missing(block_to_array(local_block))
-                                        elem_not_already_contained = common(elem_not_in_row, elem_not_in_col, elem_not_in_block)
-                                        if elem in elem_not_already_contained:
-                                            possible_local += 1
+                                    elem_not_in_block = missing(block_to_array(local_block))
+                                    elem_not_already_contained = common(elem_not_in_row, elem_not_in_col, elem_not_in_block)
+                                    if elem in elem_not_already_contained:
+                                        possible_local += 1
 
                                 for m in range(0, len(horizontal_block1.get_row(k))):
                                     if horizontal_block1.get_row(k)[m] == 'X':
@@ -551,7 +558,7 @@ def solve(puzzle):
                                 remaining -= 1
 
                         if remaining == 0:
-                            #print("Added from forward thinking column")
+                            print("Added from forward thinking column")
                             puzzle = found(puzzle, i, j, elem)
                             iterations_since_last_found = 0
                             con = True
@@ -574,6 +581,7 @@ def solve(puzzle):
 
 
 def test(iterations, selection):
+    arr = []
     for difficulty in selection:
         start_time = time.time()
 
@@ -591,29 +599,32 @@ def test(iterations, selection):
             title = "very-hard"
 
         for i in range(0, iterations):
+            global boxes
+            boxes = 0
+
             filename = title + str(i)
             puzzle = load_puzzle(filename)
             solve(puzzle)
-            global boxes
             if boxes == 81:
                 # executed correctly
                 correctly_solved += 1
-                boxes = 0
             else:
                 print("Had issues with " + filename)
-                boxes = 0
 
+        arr.append(correctly_solved)
         print("Correct solved: " + str(correctly_solved) + " " + title + " out of: " + str(iterations))
         print("--- %s seconds to execute ---" % (time.time() - start_time))
+    for val in arr:
+        print("Correct solved: " + str(val) + " out of: " + str(iterations))
 
 
 def main():
     """ Main """
-    #puzzle = load_puzzle("hard2.txt")
-    #print_puzzle(puzzle)
+    puzzle = load_puzzle("medium0")
+    print_puzzle(puzzle)
     start_time = time.time()
-    #solve(puzzle)
-    test(100, [3])
+    solve(puzzle)
+    #test(100, [1, 2])
     print("--- %s seconds ---" % (time.time() - start_time))
     #print("Done: " + str(complete(puzzle)))
 

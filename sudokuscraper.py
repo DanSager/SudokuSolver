@@ -46,7 +46,7 @@ def extract_data(iterations, selection):
             j = 0
             for div in divs:
                 if div.text == "":
-                    line += 'X'
+                    line += '0'
                 else:
                     line += div.text
                 j += 1
